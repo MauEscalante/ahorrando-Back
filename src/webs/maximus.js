@@ -44,7 +44,7 @@ export async function scrapMaximus() {
     try{
         // Iniciar Puppeteer
         const browser = await puppeteer.launch({
-            headless: false,
+            headless: true,
             slowMo:0,
         });
 

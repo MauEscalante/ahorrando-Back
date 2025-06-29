@@ -11,7 +11,7 @@ async function scrapProductos(products) {
             h => h.textContent.trim()
             );
             const precio = await product.$eval(
-            'div.price',
+            'div.price #text , div.price',
             span => span.textContent.trim()
             );
             //scroll para q empiece a cargar la imagen
@@ -47,7 +47,7 @@ async function scrapProductos(products) {
 
 export async function scrapFullH4rd() {
     const browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         slowMo:0,
     });
 

@@ -50,7 +50,7 @@ async function scrapProductos(products) {
 
 export async function scrapVenex() {
     const browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         slowMo:0,
     });
     const URLs=[

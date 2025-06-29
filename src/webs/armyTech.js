@@ -44,7 +44,7 @@ async function scrapProductos(products) {
 
 export async function scrapArmyTech() {
     const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     slowMo:0,
     });
     //const  paginas=await page.$$("div.elementor-container.elementor-column-gap-default div.elementor-row div.elementor-column.elementor-element.elementor-element-izd0cdd.elementor-col-16.elementor-top-column.elementor-sm-16");
