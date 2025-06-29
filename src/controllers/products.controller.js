@@ -16,7 +16,10 @@ const getAllProducts = async (req, res) => {
 const getProductByTitle = async (req, res) => {
     const { titulo } = req.params;
     try {
-        const products = await ProductService.getProductsByTitle(titulo);
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 12;
+        
+        const products = await ProductService.getProductsByTitle(titulo, page, limit);
         res.status(200).json(products);
     } catch (error) {
         console.error('Error al obtener productos por título:', error);

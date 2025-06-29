@@ -14,7 +14,7 @@ const getAllProducts = async (page = 1, limit = 12) => {
     }
 }
 
-const getProductsByTitle = async (titulo) => {
+const getProductsByTitle = async (titulo, page = 1, limit = 12) => {
     try {
         // Divide el título en palabras individuales y crea un patrón de búsqueda más flexible
         const palabras = titulo.trim().split(/\s+/);
@@ -24,10 +24,15 @@ const getProductsByTitle = async (titulo) => {
             titulo: { $regex: palabra, $options: 'i' }
         }));
         
-        // Busca productos que contengan TODAS las palabras
+        const skip = (page - 1) * limit;
+        
+        // Busca productos que contengan TODAS las palabras con paginación
         const products = await Product.find({ 
             $and: patronesBusqueda 
-        }).sort({ precio: 1 });
+        })
+        .skip(skip)
+        .limit(limit)
+        .sort({ precio: 1 });
         
         return products;
     } catch (error) {
