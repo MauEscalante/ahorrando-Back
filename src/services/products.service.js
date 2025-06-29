@@ -1,6 +1,6 @@
-import Product from "../model/Product";
+import Product from "../model/Product.js";
 
-exports.getAllProducts = async () => {
+const getAllProducts = async () => {
     try {
         const products = await Product.find();
         return products;
@@ -10,9 +10,10 @@ exports.getAllProducts = async () => {
     }
 }
 
-exports.getProductsByTitle = async (titulo) => {
+const getProductsByTitle = async (titulo) => {
     try {
-        // busca productos por título de manera insensible a mayúsculas y minúsculas ordenados de menor a mayor precio
+        // busca productos por título de manera insensible a mayúsculas y minúsculas
+        // ordenados de menor a mayor precio
         const products = await Product.find({ titulo: { $regex: titulo, $options: 'i' } }).sort({ precio: 1 });
         return products;
     } catch (error) {
@@ -20,3 +21,8 @@ exports.getProductsByTitle = async (titulo) => {
         throw error;
     }
 }
+
+export default {
+    getAllProducts,
+    getProductsByTitle
+};

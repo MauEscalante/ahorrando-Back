@@ -1,6 +1,6 @@
 import ProductService from '../services/products.service.js';
 
-exports.getAllProducts = async (req, res) => {
+const getAllProducts = async (req, res) => {
     try {
         const products = await ProductService.getAllProducts();
         res.status(200).json(products);
@@ -10,7 +10,7 @@ exports.getAllProducts = async (req, res) => {
     }
 }
 
-exports.getProductByTitle = async (req, res) => {
+const getProductByTitle = async (req, res) => {
     const { titulo } = req.params;
     try {
         const products = await ProductService.getProductsByTitle(titulo);
@@ -20,3 +20,8 @@ exports.getProductByTitle = async (req, res) => {
         res.status(500).json({ message: 'Error al obtener productos por título' });
     }
 }
+
+export default {
+    getAllProducts,
+    getProductByTitle
+};
