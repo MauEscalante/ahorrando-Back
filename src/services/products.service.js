@@ -1,8 +1,12 @@
 import Product from "../model/Product.js";
 
-const getAllProducts = async () => {
+const getAllProducts = async (page = 1, limit = 12) => {
     try {
-        const products = await Product.find();
+        const skip = (page - 1) * limit;
+        const products = await Product.find()
+            .skip(skip)
+            .limit(limit)
+            .sort({ _id: -1 }); // Ordenar por más recientes primero
         return products;
     } catch (error) {
         console.error('Error al obtener todos los productos:', error);
@@ -12,9 +16,19 @@ const getAllProducts = async () => {
 
 const getProductsByTitle = async (titulo) => {
     try {
-        // busca productos por título de manera insensible a mayúsculas y minúsculas
-        // ordenados de menor a mayor precio
-        const products = await Product.find({ titulo: { $regex: titulo, $options: 'i' } }).sort({ precio: 1 });
+        // Divide el título en palabras individuales y crea un patrón de búsqueda más flexible
+        const palabras = titulo.trim().split(/\s+/);
+        
+        // Crea un patrón que busque todas las palabras (en cualquier orden)
+        const patronesBusqueda = palabras.map(palabra => ({
+            titulo: { $regex: palabra, $options: 'i' }
+        }));
+        
+        // Busca productos que contengan TODAS las palabras
+        const products = await Product.find({ 
+            $and: patronesBusqueda 
+        }).sort({ precio: 1 });
+        
         return products;
     } catch (error) {
         console.error('Error al obtener productos por título:', error);

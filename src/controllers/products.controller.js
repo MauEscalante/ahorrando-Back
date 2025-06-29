@@ -2,7 +2,10 @@ import ProductService from '../services/products.service.js';
 
 const getAllProducts = async (req, res) => {
     try {
-        const products = await ProductService.getAllProducts();
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 12;
+        
+        const products = await ProductService.getAllProducts(page, limit);
         res.status(200).json(products);
     } catch (error) {
         console.error('Error al obtener productos:', error);
