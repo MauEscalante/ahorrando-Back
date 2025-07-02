@@ -1,5 +1,5 @@
 import puppeteer from "puppeteer";
-import { saveProduct } from "../handleDb.js";
+import {putProduct} from "../controllers/products.controller.js";
 
 async function scrapProductos(products) {
     try{
@@ -8,6 +8,7 @@ async function scrapProductos(products) {
                 if(stock){
                     return false
                 }
+
                 // Extraer el título y el precio del producto
                 const titulo = await product.$eval(
                 'h3.product-box-title',
@@ -32,14 +33,13 @@ async function scrapProductos(products) {
                 );
                 }
 
-                await saveProduct({
-                    titulo,
-                    precio,
-                    imagenURL,
-                    local: "Venex",
-                    localURL: "https://www.venex.com.ar/",
-                    mes: new Date().getMonth() + 1
-                });
+               await putProduct({
+                titulo,
+                precio,
+                imagen: imagenURL,
+                local: "Venex",
+                localURL: "https://www.venex.com.ar/",
+            });
             }
         return true
     }catch (error) {
@@ -85,6 +85,7 @@ export async function scrapVenex() {
             if (products.length > 0) {
                 const resultados = await scrapProductos(products);
                 if(!resultados){
+                    console.log("BREAK")
                     break;
                 }
                 
@@ -93,7 +94,6 @@ export async function scrapVenex() {
             if(nextButton){
                 // Si hay un botón de siguiente, haz clic en él
                 await nextButton.click();
-                await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
             }else{
                 // Si no hay botón de siguiente, sal del bucle
                 hayPaginacion=false;

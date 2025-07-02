@@ -1,5 +1,5 @@
 import puppeteer from "puppeteer";
-import { saveProduct } from "../handleDb.js";
+import {putProduct} from "../controllers/products.controller.js";
 
 async function scrapProductos(products) {
     try{
@@ -30,13 +30,12 @@ async function scrapProductos(products) {
                     );
                 }
 
-            await saveProduct({
+            await putProduct({
                 titulo,
                 precio,
-                imagenURL,
+                imagen: imagenURL,
                 local: "Full H4rd",
                 localURL: "https://fullh4rd.com.ar/",
-                mes: new Date().getMonth() + 1
             });
         }
     }catch (error) {

@@ -1,5 +1,5 @@
 import puppeteer from "puppeteer";
-import { saveProduct } from "../handleDb.js";
+import {putProduct} from "../controllers/products.controller.js";
 
 async function scrapProductos(products) {
     try{
@@ -27,14 +27,13 @@ async function scrapProductos(products) {
             );
             }
         
-            /*await saveProduct({
+            await putProduct({
                 titulo,
                 precio,
-                imagenURL,
+                imagen: imagenURL,
                 local: "Army Tech",
                 localURL: "https://www.armytech.com.ar/",
-                mes: new Date().getMonth() + 1
-            });*/
+            });
         }
     }catch (error) {
         console.error("Error al scrapear productos:", error);

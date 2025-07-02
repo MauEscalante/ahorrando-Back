@@ -1,5 +1,5 @@
 import puppeteer from "puppeteer";
-import { saveProduct } from "../handleDb.js";
+import {putProduct} from "../controllers/products.controller.js";
 
 async function scrapProductos(products) {
     try{
@@ -24,13 +24,12 @@ async function scrapProductos(products) {
                 '.col-md-prod .product .image img.img-responsive',
                 img => img.src
             );
-            await saveProduct({
+            await putProduct({
                 titulo,
                 precio,
-                imagenURL,
+                imagen: imagenURL,
                 local: "Maximus",
                 localURL: "https://www.maximus.com.ar/",
-                mes: new Date().getMonth() + 1
             });
         }
         
