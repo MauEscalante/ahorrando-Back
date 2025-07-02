@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
-import {putProduct} from "../controllers/products.controller.js";
+import productService from "../services/products.service.js";
+import { normalizarPrecio } from "../utils/priceNormalizer.js";
 
 async function scrapProductos(products) {
     try{
@@ -11,10 +12,19 @@ async function scrapProductos(products) {
                 '.col-md-prod .product .description span',
                 h => h.textContent.trim()
             );
-            const precio = await product.$eval(
+            const precioRaw = await product.$eval(
             '.col-md-prod .product .cajaprecio .price',
             span => span.textContent.trim()
             );
+            
+            // Normalizar el formato del precio
+            const precio = normalizarPrecio(precioRaw);
+            
+            // Solo procesar productos con precios válidos
+            if (!precio) {
+                console.warn(`Producto omitido por precio inválido: ${titulo} - ${precioRaw}`);
+                continue;
+            }
             
         
             await product.scrollIntoViewIfNeeded();
@@ -24,13 +34,7 @@ async function scrapProductos(products) {
                 '.col-md-prod .product .image img.img-responsive',
                 img => img.src
             );
-            await putProduct({
-                titulo,
-                precio,
-                imagen: imagenURL,
-                local: "Maximus",
-                localURL: "https://www.maximus.com.ar/",
-            });
+             await productService.putProduct(titulo, precio, imagenURL, "Maximus", "https://www.maximus.com.ar/");
         }
         
     }catch (error) {

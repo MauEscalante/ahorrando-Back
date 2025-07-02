@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
-import {putProduct} from "../controllers/products.controller.js";
+import productService from "../services/products.service.js";
+import { normalizarPrecio } from "../utils/priceNormalizer.js";
 
 async function scrapProductos(products) {
     try{
@@ -10,33 +11,54 @@ async function scrapProductos(products) {
             'h3',
             h => h.textContent.trim()
             );
-            const precio = await product.$eval(
-            'div.price #text , div.price',
-            span => span.textContent.trim()
-            );
+            let precio;
+            try {
+                // Intentar obtener solo el texto directo del div (sin elementos hijos)
+                precio = await product.evaluate((element) => {
+                    const priceDiv = element.querySelector('div.price');
+                    if (priceDiv) {
+                        // Obtener solo el texto directo del div, excluyendo los elementos hijos
+                        return priceDiv.childNodes[0]?.textContent?.trim() || '';
+                    }
+                    return null;
+                });
+                
+                // Si no hay texto directo o está vacío, intentar con el span
+                if (!precio || precio === '') {
+                    precio = await product.$eval(
+                        'div.price span.price-promo',
+                        span => span.textContent.trim()
+                    );
+                }
+            } catch (error) {
+                continue;
+            }
+            
+            // Normalizar el formato del precio
+            const precioNormalizado = normalizarPrecio(precio);
+            
+            // Solo procesar productos con precios válidos
+            if (!precioNormalizado) {
+                console.warn(`Producto omitido por precio inválido: ${titulo} - ${precio}`);
+                continue;
+            }
+            
             //scroll para q empiece a cargar la imagen
             await product.scrollIntoViewIfNeeded();
 
             
-        
-             const existeImagen = await product.$('div.image img');
-                var imagenURL;
-                if (!existeImagen) {
-                    imagenURL = null; 
-                }else{
-                    imagenURL = await product.$eval(
-                    'div.image img',
-                    img => img.src
-                    );
-                }
+            const existeImagen = await product.$('div.image img');
+            var imagenURL;
+            if (!existeImagen) {
+                imagenURL = null; 
+            }else{
+                imagenURL = await product.$eval(
+                'div.image img',
+                img => img.src
+                );
+            }
 
-            await putProduct({
-                titulo,
-                precio,
-                imagen: imagenURL,
-                local: "Full H4rd",
-                localURL: "https://fullh4rd.com.ar/",
-            });
+             await productService.putProduct(titulo, precioNormalizado, imagenURL, "Full H4rd", "https://fullh4rd.com.ar/");
         }
     }catch (error) {
         console.error("Error al scrapear productos:", error);
@@ -75,8 +97,8 @@ export async function scrapFullH4rd() {
         'https://fullh4rd.com.ar/cat/supra/27/conectividad-y-redes/1'
     ]
     // Obtener todos los elementos de header de paneles
-    
-    for(let i=0;i < URLs.length -1; i++){
+
+    for(let i=0;i < URLs.length; i++){
         await page.goto(URLs[i]);
 
         let hayPaginacion = true;

@@ -23,14 +23,16 @@ async function main() {
         mongoose.connection.on('error', err => {
           console.error('Error en la conexión de MongoDB:', err.message);
         });
-        await scrapVenex();
         await scrapCompraGamer();
+        await scrapVenex();
+        
         await scrapArmyTech();
         
         await scrapMaximus();
         
         
         await scrapFullH4rd();
+        console.log("Scraping completado exitosamente");
     } catch (error) {
         console.error('Error al ejecutar el script:', error);
     }

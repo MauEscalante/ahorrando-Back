@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
-import {putProduct} from "../controllers/products.controller.js";
+import productService from "../services/products.service.js";
+import { normalizarPrecio } from "../utils/priceNormalizer.js";
 
 async function scrapProductos(products) {
     try{
@@ -9,10 +10,19 @@ async function scrapProductos(products) {
             'h3.cg__fw-400.mb-5.product-card__title.ng-star-inserted',
             h => h.textContent.trim()
             );
-            const precio = await product.$eval(
+            const precioRaw = await product.$eval(
             'span.txt_price',
             span => span.textContent.trim()
             );
+            
+            // Normalizar el formato del precio
+            const precio = normalizarPrecio(precioRaw);
+            
+            // Solo procesar productos con precios válidos
+            if (!precio) {
+                console.warn(`Producto omitido por precio inválido: ${titulo} - ${precioRaw}`);
+                continue;
+            }
             //scroll para q empiece a cargar la imagen
             await product.scrollIntoViewIfNeeded();
 
@@ -26,13 +36,7 @@ async function scrapProductos(products) {
                 img => img.src
             );
 
-            await putProduct({
-                titulo,
-                precio,
-                imagen: imagenURL,
-                local: "Compra Gamer",
-                localURL: "https://compragamer.com/",
-            });
+             await productService.putProduct(titulo, precio, imagenURL, "Compra gamer", "https://compragamer.com/");
         }
     }catch (error) {
         console.error("Error al scrapear productos:", error);

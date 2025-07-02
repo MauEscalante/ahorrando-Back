@@ -34,10 +34,12 @@ const putProduct = async (titulo, precio, imagen, local, localURL) => {
 const getAllProducts = async (page = 1, limit = 12) => {
     try {
         const skip = (page - 1) * limit;
-        const products = await Product.find()
-            .skip(skip)
-            .limit(limit)
-            .sort({ _id: -1 }); // Ordenar por más recientes primero
+        
+        const products = await Product.aggregate([
+            { $sample: { size: await Product.countDocuments() } },
+            { $skip: skip },
+            { $limit: limit }
+        ]);
         return products;
     } catch (error) {
         console.error('Error al obtener todos los productos:', error);

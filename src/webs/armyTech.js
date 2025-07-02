@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
-import {putProduct} from "../controllers/products.controller.js";
+import productService from "../services/products.service.js";
+import { normalizarPrecio } from "../utils/priceNormalizer.js";
 
 async function scrapProductos(products) {
     try{
@@ -10,10 +11,19 @@ async function scrapProductos(products) {
             'h3.h3.product-title a',
             h => h.textContent.trim()
             );
-            const precio = await product.$eval(
+            const precioRaw = await product.$eval(
             'span.product-price',
             span => span.textContent.trim()
             );
+            
+            // Normalizar el formato del precio
+            const precio = normalizarPrecio(precioRaw);
+            
+            // Solo procesar productos con precios válidos
+            if (!precio) {
+                console.warn(`Producto omitido por precio inválido: ${titulo} - ${precioRaw}`);
+                continue;
+            }
             
             const existeImagen = await product.$('img.img-fluid.product-thumbnail-first.loaded');
 
@@ -26,14 +36,8 @@ async function scrapProductos(products) {
                 img => img.src
             );
             }
-        
-            await putProduct({
-                titulo,
-                precio,
-                imagen: imagenURL,
-                local: "Army Tech",
-                localURL: "https://www.armytech.com.ar/",
-            });
+
+             await productService.putProduct(titulo, precio, imagenURL, "Army Tech", "https://www.armytech.com.ar/");
         }
     }catch (error) {
         console.error("Error al scrapear productos:", error);
@@ -46,7 +50,6 @@ export async function scrapArmyTech() {
     headless: true,
     slowMo:0,
     });
-    //const  paginas=await page.$$("div.elementor-container.elementor-column-gap-default div.elementor-row div.elementor-column.elementor-element.elementor-element-izd0cdd.elementor-col-16.elementor-top-column.elementor-sm-16");
     const page = await browser.newPage();
     await page.goto("https://www.armytech.com.ar/")
     const urls = await page.evaluate(() => {

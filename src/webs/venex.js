@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
-import {putProduct} from "../controllers/products.controller.js";
+import productService from "../services/products.service.js";
+import { normalizarPrecio } from "../utils/priceNormalizer.js";
 
 async function scrapProductos(products) {
     try{
@@ -14,10 +15,19 @@ async function scrapProductos(products) {
                 'h3.product-box-title',
                 h => h.textContent.trim()
                 );
-                const precio = await product.$eval(
+                const precioRaw = await product.$eval(
                 'span.current-price',
                 span => span.textContent.trim()
                 );
+                
+                // Normalizar el formato del precio
+                const precio = normalizarPrecio(precioRaw);
+                
+                // Solo procesar productos con precios válidos
+                if (!precio) {
+                    console.warn(`Producto omitido por precio inválido: ${titulo} - ${precioRaw}`);
+                    continue;
+                }
                 //scroll para q empiece a cargar la imagen
                 await product.scrollIntoViewIfNeeded();
 
@@ -33,13 +43,7 @@ async function scrapProductos(products) {
                 );
                 }
 
-               await putProduct({
-                titulo,
-                precio,
-                imagen: imagenURL,
-                local: "Venex",
-                localURL: "https://www.venex.com.ar/",
-            });
+                await productService.putProduct(titulo, precio, imagenURL, "Venex", "https://www.venex.com.ar/");
             }
         return true
     }catch (error) {
