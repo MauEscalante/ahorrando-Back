@@ -9,7 +9,7 @@ const putProduct = async (titulo, precio, imagen, local, localURL) => {
             producto.preciosHistorico.push({ precio, fecha: new Date() });
             producto.precio = precio;
             producto.imagenURL = imagen;
-            producto.mes = new Date().getMonth() + 1;
+            producto.fecha = new Date();
             await producto.save();
         } else {
             // Si no existe, crea un nuevo producto
@@ -19,8 +19,8 @@ const putProduct = async (titulo, precio, imagen, local, localURL) => {
                 imagenURL: imagen,
                 local: local,
                 localURL: localURL,
-                fecha: new Date().getMonth() + 1, // Mes actual (1-12)
-                precioHistorico: [{ precio, fecha: new Date() }]
+                fecha: new Date(),
+                preciosHistorico: [{ precio, fecha: new Date() }]
             });
             await producto.save();
         }
@@ -74,8 +74,74 @@ const getProductsByTitle = async (titulo, page = 1, limit = 12) => {
     }
 }
 
+const getProductById = async (id) => {
+    try {
+        const product = await Product.findById(id);
+        const meses = [
+        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+        ];
+
+        const resultado = [];
+
+        for (const [año, precios] of product.promediosPorAño.entries()) {
+            precios.forEach((precio, i) => {
+                resultado.push({
+                año,
+                mes: meses[i],
+                precio: precio
+                });
+            });
+        }
+        return resultado;
+
+    } catch (error) {
+        console.error('Error al obtener producto por ID:', error);
+        throw error;
+    }
+}
+
+const getDetailsById = async (id, año, mes) => {
+    try{
+        const product = await Product.findById(id);
+        if (!product) {
+            throw new Error('Producto no encontrado');
+        }
+        const meses = [
+        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+        ];
+        let intMes;
+        for (const m of meses) {
+            if (m === mes) {
+                intMes = meses.indexOf(m) + 1; // getMonth() devuelve 0-11, necesitamos 1-12
+            }
+        }
+
+        // Si se proporcionan año y mes, filtrar por esos valores
+        if (año && mes) {
+            const preciosFiltrados = product.preciosHistorico.filter(item => {
+                const itemAño = item.fecha.getFullYear();
+                const itemMes = item.fecha.getMonth() + 1; // getMonth() devuelve 0-11, necesitamos 1-12
+                
+                return itemAño === parseInt(año) && itemMes === parseInt(intMes);
+            });
+            
+            return preciosFiltrados;
+        }
+
+        // Si no se proporcionan filtros, devolver todo el historial
+        return product.preciosHistorico;
+    } catch (error) {
+        console.error('Error al obtener detalles por ID:', error);
+        throw error;
+    }
+}
+
 export default {
     putProduct,
     getAllProducts,
-    getProductsByTitle
+    getProductsByTitle,
+    getProductById,
+    getDetailsById
 };

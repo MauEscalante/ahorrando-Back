@@ -1,3 +1,4 @@
+import { get } from 'mongoose';
 import ProductService from '../services/products.service.js';
 
 const putProduct=async (req, res) => {
@@ -39,8 +40,41 @@ const getProductByTitle = async (req, res) => {
     }
 }
 
+const getProductById = async (req, res) => {
+    try{
+        const {id}=req.params;  
+        const product = await ProductService.getProductById(id);
+        if (!product) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+        res.status(200).json(product);
+    }catch (error) {
+        console.error('Error al obtener producto por ID:', error);
+        res.status(500).json({ message: 'Error al obtener producto por ID' });
+    }
+}
+
+const getDetailsById = async (req, res) => {
+    try{
+        const { id } = req.params;
+        const {año, mes} = req.body;
+        const details = await ProductService.getDetailsById(id, año, mes);
+
+        if (!details) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+
+        res.status(200).json(details);
+    }catch (error) {
+        console.error('Error al obtener detalles por ID:', error);
+        res.status(500).json({ message: 'Error al obtener detalles por ID' });
+    }
+}
+
 export default {
     getAllProducts,
     getProductByTitle,
-    putProduct
+    putProduct,
+    getProductById,
+    getDetailsById
 };
