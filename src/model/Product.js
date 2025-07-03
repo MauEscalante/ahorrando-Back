@@ -41,7 +41,7 @@ const productSchema = new Schema(
     // Map: clave = año (ej: "2025"), valor = array de 12 promedios mensuales
     promediosPorAño: {
       type: Map,
-      of: [Schema.Types.Mixed], // Array mixto que puede contener strings o números
+      of: [Schema.Types.String], // Array de strings que representan los promedios mensuales
       default: new Map()
     }
   },
@@ -86,7 +86,7 @@ productSchema.methods.recalcularPromedioMes = function(año, mes) {
       
       if (preciosNumericos.length > 0) {
         const promedioNumerico = preciosNumericos.reduce((sum, precio) => sum + precio, 0) / preciosNumericos.length;
-        promedioFinal = Math.round(promedioNumerico * 100) / 100; // Convertir a número redondeado
+        promedioFinal = promedioNumerico; // Mantener el valor completo sin redondear
       } else {
         promedioFinal = preciosDelMes[0]; // Fallback al primer precio
       }
