@@ -1,3 +1,4 @@
+import { get } from "mongoose";
 import Product from "../model/Product.js";
 
 const putProduct = async (titulo, precio, imagen, local, localURL) => {
@@ -74,7 +75,7 @@ const getProductsByTitle = async (titulo, page = 1, limit = 12) => {
     }
 }
 
-const getProductById = async (id) => {
+const getPromediosById = async (id) => {
     try {
         const product = await Product.findById(id);
         const meses = [
@@ -112,9 +113,10 @@ const getDetailsById = async (id, año, mes) => {
         "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
         ];
         let intMes;
-        for (const m of meses) {
-            if (m === mes) {
-                intMes = meses.indexOf(m) + 1; // getMonth() devuelve 0-11, necesitamos 1-12
+        for (let i = 0; i < meses.length; i++) {
+            if (meses[i] === mes) {
+                intMes = i + 1; // getMonth() devuelve 0-11, necesitamos 1-12
+                break;
             }
         }
 
@@ -138,10 +140,24 @@ const getDetailsById = async (id, año, mes) => {
     }
 }
 
+const getProductById = async (id) => {
+    try {
+        const product = await Product.findById(id);
+        if (!product) {
+            throw new Error('Producto no encontrado');
+        } 
+        return product;
+    } catch (error) {
+        console.error('Error al obtener producto por ID:', error);
+        throw error;
+    }
+}
+
 export default {
     putProduct,
     getAllProducts,
     getProductsByTitle,
-    getProductById,
-    getDetailsById
+    getPromediosById,
+    getDetailsById,
+    getProductById
 };

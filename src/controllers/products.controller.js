@@ -1,4 +1,4 @@
-import { get } from 'mongoose';
+
 import ProductService from '../services/products.service.js';
 
 const putProduct=async (req, res) => {
@@ -40,10 +40,10 @@ const getProductByTitle = async (req, res) => {
     }
 }
 
-const getProductById = async (req, res) => {
+const getPromediosById = async (req, res) => {
     try{
         const {id}=req.params;  
-        const product = await ProductService.getProductById(id);
+        const product = await ProductService.getPromediosById(id);
         if (!product) {
             return res.status(404).json({ message: 'Producto no encontrado' });
         }
@@ -54,10 +54,26 @@ const getProductById = async (req, res) => {
     }
 }
 
+const getProductById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const product = await ProductService.getProductById(id);
+        
+        if (!product) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+        
+        res.status(200).json(product);
+    } catch (error) {
+        console.error('Error al obtener producto por ID:', error);
+        res.status(500).json({ message: 'Error al obtener producto por ID' });
+    }
+}
+
 const getDetailsById = async (req, res) => {
     try{
         const { id } = req.params;
-        const {año, mes} = req.body;
+        const { año, mes } = req.query; // Cambiado de req.body a req.query
         const details = await ProductService.getDetailsById(id, año, mes);
 
         if (!details) {
@@ -75,6 +91,7 @@ export default {
     getAllProducts,
     getProductByTitle,
     putProduct,
-    getProductById,
-    getDetailsById
+    getPromediosById,
+    getDetailsById,
+    getProductById
 };

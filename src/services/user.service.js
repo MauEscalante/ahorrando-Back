@@ -1,4 +1,4 @@
-import User from '../models/user.model.js';
+import User from '../model/User.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
@@ -8,7 +8,7 @@ const register = async (email, password, nombre, apellido) => {
     try{
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            throw new Error('El usuario ya existe');
+            throw new Error('El usuario ya existee');
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = new User({ email, password: hashedPassword, nombre, apellido, favoritos: [], isConfirmed: false });

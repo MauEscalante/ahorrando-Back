@@ -2,11 +2,12 @@ import express from 'express';
 import ProductsController from '../../controllers/products.controller.js';
 const router = express.Router();
 
-// Rutas para productos
+// Rutas para productos (orden específico para evitar conflictos)
 router.get('/', ProductsController.getAllProducts);
-router.get('/:id', ProductsController.getProductById);
-router.get('/:titulo', ProductsController.getProductByTitle);
 router.get('/detalles/:id', ProductsController.getDetailsById);
+router.get('/id/:id', ProductsController.getProductById);
+router.get('/:titulo', ProductsController.getProductByTitle);
+router.get('/search/:id', ProductsController.getPromediosById);
 
 
 export default router;
