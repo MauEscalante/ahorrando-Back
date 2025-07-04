@@ -3,12 +3,19 @@ import express, { json, urlencoded } from 'express';
 import cors from 'cors';
 import mongoose from "mongoose";
 import apiRouter from './src/routes/api.js';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: ['http://localhost:3000', 'http://127.0.0.1:3000'], // Agrega aquí la URL de tu frontend
+    credentials: true, // Permite cookies
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(json());
 app.use(urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.use("/api", apiRouter);
 

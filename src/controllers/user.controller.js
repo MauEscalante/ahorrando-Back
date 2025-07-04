@@ -1,13 +1,25 @@
 import userService from '../services/user.service.js';
+import jwt from 'jsonwebtoken';
 
 const register = async (req, res) => {
     try {
-        const { email, password, nombre, apellido } = req.body;
-        const user = await userService.register(email, password, nombre, apellido);
-        res.status(201).json({ message: 'Usuario registrado correctamente', user });
+        const { name,email,password } = req.body;
+        const result = await userService.register(name,email,password);
+        
+        // Configurar cookie con opciones de seguridad
+        res.cookie('token', result.token, {
+            httpOnly: true, // Solo accesible desde el servidor
+            secure: process.env.NODE_ENV === 'production', // HTTPS en producción
+            sameSite: 'lax', // Protección CSRF
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días en millisegundos
+        });
+        
+        res.status(201).json({ 
+            message: 'Usuario registrado correctamente',
+            user: result.user
+        });
     } catch (error) {
-        console.error('Error al registrar usuario:', error);
-        res.status(500).json({ message: 'Error al registrar usuario' });
+        res.status(500).json({ message: error.message });
     }
 }
 
@@ -20,8 +32,7 @@ const getUserById = async (req, res) => {
         }
         res.status(200).json(user);
     } catch (error) {
-        console.error('Error al obtener usuario por ID:', error);
-        res.status(500).json({ message: 'Error al obtener usuario por ID' });
+        res.status(500).json({ message: error.message});
     }
 }
 
@@ -35,8 +46,7 @@ const getUserByEmail = async (req, res) => {
         }
         res.status(200).json(user);
     } catch (error) {
-        console.error('Error al obtener usuario por email:', error);
-        res.status(500).json({ message: 'Error al obtener usuario por email' });
+        res.status(500).json({ message: error.message });
     }
 }
 
@@ -46,8 +56,7 @@ const getFavoritos = async (req, res) => {
         const favoritos = await userService.getFavoritos(id);
         res.status(200).json(favoritos);
     } catch (error) {
-        console.error('Error al obtener favoritos:', error);
-        res.status(500).json({ message: 'Error al obtener favoritos' });
+        res.status(500).json({ message: error.message });
     }
 }
 const addFavorito = async (req, res) => {
@@ -57,8 +66,7 @@ const addFavorito = async (req, res) => {
         await userService.addFavorito(id, productId);
         res.status(200).json({ message: 'Producto añadido a favoritos' });
     } catch (error) {
-        console.error('Error al añadir favorito:', error);
-        res.status(500).json({ message: 'Error al añadir favorito' });
+        res.status(500).json({ message: error.message });
     }
 }
 
@@ -69,8 +77,7 @@ const removeFavorito = async (req, res) => {
         await userService.removeFavorito(id, productId);
         res.status(200).json({ message: 'Producto eliminado de favoritos' });
     } catch (error) {
-        console.error('Error al eliminar favorito:', error);
-        res.status(500).json({ message: 'Error al eliminar favorito' });
+        res.status(500).json({ message: error.message });
     }
 }
 
@@ -83,22 +90,58 @@ const confirmEmail = async (req, res) => {
         }
         res.status(200).json({ message: 'Email confirmado correctamente', user });
     } catch (error) {
-        console.error('Error al confirmar email:', error);
-        res.status(500).json({ message: 'Error al confirmar email' });
+        res.status(500).json({ message: error.message });
     }
 }
 
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await userService.login(email, password);
-        if (!user) {
+        const result = await userService.login(email, password);
+       
+        if (!result) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
-        res.status(200).json({ message: 'Login exitoso', user });
+        
+        // Configurar cookie con opciones de seguridad
+        res.cookie('token', result.token, {
+            sameSite: 'lax', // Protección CSRF
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días en millisegundos
+        });
+        
+        res.status(200).json({ 
+            message: 'Login exitoso',
+            user: result.user
+        });
     } catch (error) {
-        console.error('Error al iniciar sesión:', error);
-        res.status(500).json({ message: 'Error al iniciar sesión' });
+        res.status(500).json({ message: error.message });
+    }
+}
+
+const logout = async (req, res) => {
+    try {
+        // Limpiar la cookie del token
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax'
+        });
+        
+        res.status(200).json({ message: 'Sesión cerrada correctamente' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+const profile = async (req, res) => {
+    try {
+        const favoritos = await userService.getFavoritos(req.user.id);
+        res.status(200).json({
+            message: 'Sesión válida',
+           favoritos: favoritos,
+        });
+    } catch (error) {
+        res.status(401).json({ message: 'Token inválido' });
     }
 }
 
@@ -110,5 +153,7 @@ export default {
     addFavorito,
     removeFavorito,
     confirmEmail,
-    login
+    login,
+    logout,
+    profile
 };
