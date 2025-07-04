@@ -6,7 +6,7 @@ const router = express.Router();
 router.get('/', ProductsController.getAllProducts);
 router.get('/detalles/:id', ProductsController.getDetailsById);
 router.get('/id/:id', ProductsController.getProductById);
-router.get('/:titulo', ProductsController.getProductByTitle);
+router.get('/title/:titulo', ProductsController.getProductByTitle);
 router.get('/search/:id', ProductsController.getPromediosById);
 
 

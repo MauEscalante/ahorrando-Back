@@ -130,8 +130,7 @@ const getUserByEmail = async (req, res) => {
 
 const getFavoritos = async (req, res) => {
     try {
-        const { id } = req.params;
-        const favoritos = await userService.getFavoritos(id);
+        const favoritos = await userService.getFavoritos(req.user.id);
         res.status(200).json(favoritos);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -139,8 +138,8 @@ const getFavoritos = async (req, res) => {
 }
 const addFavorito = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { productId } = req.body;
+        const { productId } = req.params;
+        const id = req.user.id;
         await userService.addFavorito(id, productId);
         res.status(200).json({ message: 'Producto añadido a favoritos' });
     } catch (error) {
@@ -150,8 +149,8 @@ const addFavorito = async (req, res) => {
 
 const removeFavorito = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { productId } = req.body;
+         const { productId } = req.params;
+        const id = req.user.id;
         await userService.removeFavorito(id, productId);
         res.status(200).json({ message: 'Producto eliminado de favoritos' });
     } catch (error) {

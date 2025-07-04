@@ -10,9 +10,8 @@ export const authRequired= (req, res, next) => {
             if (err) {
                 return res.status(403).json({ message: 'Invalid token' });
             }
-            req.user = decoded.user;
+            req.user = decoded;
         });
-       
         next();
     } catch (error) {
         return res.status(403).json({ message: 'Invalid token' });
