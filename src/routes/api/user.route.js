@@ -16,7 +16,8 @@ router.delete('/favoritos/:id', userControler.removeFavorito);
 // Rutas de autenticación
 router.get('/confirm-user/:token', userControler.confirmEmail);
 router.post('/login', userControler.login);
-router.post('/logout', userControler.logout);
+router.post('/logout', authRequired, userControler.logout);
 router.get('/me/profile', authRequired, userControler.profile);
+router.get('/me/logged',  userControler.logged);
 
 export default router;

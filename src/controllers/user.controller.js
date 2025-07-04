@@ -186,6 +186,7 @@ const login = async (req, res) => {
         // Configurar cookie con opciones de seguridad
         res.cookie('token', result.token, {
             sameSite: 'lax', // Protección CSRF
+            httpOnly:false,
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días en millisegundos
         });
         
@@ -225,6 +226,19 @@ const profile = async (req, res) => {
     }
 }
 
+const logged = async (req, res) => {
+    try {
+        const token=req.cookies.token;
+        if (!token) {
+            return res.json(false);
+        }
+        const decoded= jwt.verify(token, process.env.SECRET_JWT);
+        return res.json({user:decoded})
+    } catch (error) {
+        return res.status(401).json({ message: 'Token inválido' });
+    }
+}
+
 export default {
     register,
     getUserById,
@@ -235,5 +249,6 @@ export default {
     confirmEmail,
     login,
     logout,
-    profile
+    profile,
+    logged
 };
