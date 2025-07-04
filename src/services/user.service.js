@@ -1,8 +1,10 @@
 import User from '../model/User.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
-import crypto from 'crypto';
+import mailSender from './nodemailer.js'; 
+import { createTransport } from "nodemailer";
+import {google } from "googleapis";
+
 
 const register = async (name,email,password) => {
     try{
@@ -105,16 +107,19 @@ const removeFavorito = async (id, productId) => {
     }
 }
 
-const confirmEmail = async (token) => {
+const confirmEmail = async (id) => {
     try {
-        const user = await User.findOne({ confirmationToken: token });
-        if (!user) {
-            throw new Error('Token de confirmación inválido');
-        }
-        user.isConfirmed = true;
-        user.confirmationToken = undefined;
-        await user.save();
-        return user;
+       const updatedUser = await User.findByIdAndUpdate(
+            id,
+            { isConfirmed: true },
+            { new: true }
+        );
+
+    if (!updatedUser) {
+      throw new Error("User not found");
+    }
+
+    return updatedUser;
     } catch (error) {
         throw new Error('Error al confirmar email');
     }
@@ -130,9 +135,9 @@ const login = async (email, password) => {
         if (!isMatch) {
             throw new Error('Contraseña incorrecta');
         }
-        /*if (!user.isConfirmed) {
+        if (!user.isConfirmed) {
             throw new Error('Email no confirmado');
-        }*/
+        }
         const token = jwt.sign({ id: user._id }, process.env.SECRET_JWT, {
             expiresIn: '7d' // Token expira en 7 días
         });
@@ -154,28 +159,46 @@ const login = async (email, password) => {
 
 const sendConfirmationEmail = async (user) => {
     try {
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
+        const oAuth2Client = new google.auth.OAuth2(
+            process.env.CLIENT_ID,
+            process.env.CLIENT_SECRET,
+            process.env.REDIRECT_URI
+        );
+
+        oAuth2Client.setCredentials({
+            refresh_token: process.env.REFRESH_TOKEN
+        });
+
+        const accessTokenResponse = await oAuth2Client.getAccessToken();
+        
+        const token = accessTokenResponse.token;
+        const transporter = createTransport({
+            service: "gmail",
             auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
+                type: "OAuth2",
+                user: process.env.MAIL,
+                clientId: process.env.CLIENT_ID,
+                clientSecret: process.env.CLIENT_SECRET,
+                refreshToken: process.env.REFRESH_TOKEN,
+                accessToken: token,
+            },
+            tls: {
+                rejectUnauthorized: false // Permitir conexiones TLS no seguras
             }
         });
 
-        const token = crypto.randomBytes(32).toString('hex');
-        user.confirmationToken = token;
-        await user.save();
-
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
+        await mailSender({
             to: user.email,
-            subject: 'Confirmación de Email',
-            text: `Por favor, confirma tu email haciendo clic en el siguiente enlace: ${process.env.BASE_URL}/confirm/${token}`
-        };
+            subject: user.subject,
+            html: user.html,
+            transporter: transporter
+        });
 
-        await transporter.sendMail(mailOptions);
     } catch (error) {
-        throw new Error('Error al enviar email de confirmación');
+        console.error("Error completo:", error);
+        console.error("Mensaje de error:", error.message);
+        console.error("Stack trace:", error.stack);
+        throw new Error('Error al enviar email de confirmación: ' + error.message);
     }
 }
 

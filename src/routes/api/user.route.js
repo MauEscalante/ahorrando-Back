@@ -14,7 +14,7 @@ router.put('/favoritos/:id', userControler.addFavorito);
 router.delete('/favoritos/:id', userControler.removeFavorito);
 
 // Rutas de autenticación
-router.put('/confirm/:token', userControler.confirmEmail);
+router.get('/confirm-user/:token', userControler.confirmEmail);
 router.post('/login', userControler.login);
 router.post('/logout', userControler.logout);
 router.get('/me/profile', authRequired, userControler.profile);
