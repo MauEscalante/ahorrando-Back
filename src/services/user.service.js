@@ -67,12 +67,13 @@ const getUserByEmail = async (email) => {
     }
 }
 
-const getFavoritos = async (id) => {
+const getFavoritos = async (userId) => {
     try {
-        const user = await User.findById(id).populate('favoritos');
+        const user = await User.findById(userId);
         if (!user) {
             throw new Error('Usuario no encontrado');
         }
+        
         return user.favoritos;
     } catch (error) {
         throw new Error('Error al obtener favoritos');

@@ -7,7 +7,7 @@ import {authRequired} from '../../middlewares/validateToken.js';
 router.post('/register', userControler.register);
 
 // Rutas para favoritos
-router.get('/list/favoritos', authRequired, userControler.getFavoritos);
+router.get('/list/favorito', authRequired, userControler.getFavoritos);
 router.put('/favoritos/:productId', authRequired, userControler.addFavorito);
 router.delete('/favoritos/:productId', authRequired, userControler.removeFavorito);
 

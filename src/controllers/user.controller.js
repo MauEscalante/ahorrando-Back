@@ -130,8 +130,8 @@ const getUserByEmail = async (req, res) => {
 
 const getFavoritos = async (req, res) => {
     try {
-        const favoritos = await userService.getFavoritos(req.user.id);
-        res.status(200).json(favoritos);
+        const favoritos = await userService.getFavoritos( req.user.id);
+        res.status(200).json({ favoritos });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -215,10 +215,10 @@ const logout = async (req, res) => {
 
 const profile = async (req, res) => {
     try {
-        const favoritos = await userService.getFavoritos(req.user.id);
+        const user = await userService.getUserById(req.user.id);
         res.status(200).json({
             message: 'Sesión válida',
-           favoritos: favoritos,
+            user: user,
         });
     } catch (error) {
         res.status(401).json({ message: 'Token inválido' });
