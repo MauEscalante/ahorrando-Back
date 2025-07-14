@@ -1,51 +1,39 @@
-
 export function normalizarPrecio(precioTexto) {
     // Validación temprana
     if (!precioTexto || precioTexto === '') return null;
-    
+
     // Convertir a string y limpiar
     const textoLimpio = String(precioTexto).trim();
-    
+
     // Detectar si tiene decimales (buscar punto o coma seguida de 1-2 dígitos al final)
     const tieneDecimales = /[.,]\d{1,2}$/.test(textoLimpio);
-    
+
     if (tieneDecimales) {
         // Si tiene decimales, extraer la parte entera (todo excepto los últimos 2-3 caracteres)
         const sinDecimales = textoLimpio.replace(/[.,]\d{1,2}$/, '');
-        // Extraer solo los dígitos de la parte entera
+        // Remover todos los caracteres excepto dígitos (eliminar puntos separadores de miles)
         const soloDigitos = sinDecimales.replace(/[^\d]/g, '');
-        
+
         if (!soloDigitos) return null;
-        
-        const numero = parseInt(soloDigitos, 10);
-        
+
+        const numero = Number(soloDigitos);
         // Validar rango
         if (numero <= 0 || numero > 999999999) return null;
-        
-        // Formatear automáticamente con separadores de miles
-        return `$${numero.toLocaleString('es-AR')}`;
+
+        // Formatear para mantener 3 decimales (que representan los miles) y devolver como string
+        return numero
     } else {
-        // Si no tiene decimales, procesar como antes
+        // Si no tiene decimales, los puntos son separadores de miles
         const soloDigitos = textoLimpio.replace(/[^\d]/g, '');
-        
+
         if (!soloDigitos) return null;
-        
-        const numero = parseInt(soloDigitos, 10);
-        
+
+        const numero = Number(soloDigitos);
+
         // Validar rango
         if (numero <= 0 || numero > 999999999) return null;
-        
-        // Formatear automáticamente con separadores de miles
-        return `$${numero.toLocaleString('es-AR')}`;
+        // Formatear para mantener 3 decimales (que representan los miles) y devolver como string
+        return numero
     }
 }
 
-
-export function precioANumero(precioNormalizado) {
-    if (!precioNormalizado || typeof precioNormalizado !== 'string') return 0;
-    
-    // Remover símbolo $ y puntos separadores, mantener solo dígitos
-    const numeroString = precioNormalizado.replace(/[^0-9]/g, '');
-    
-    return parseInt(numeroString, 10) || 0;
-}

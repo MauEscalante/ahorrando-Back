@@ -16,9 +16,8 @@ const putProduct=async (req, res) => {
 const getAllProducts = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 12;
         
-        const products = await ProductService.getAllProducts(page, limit);
+        const products = await ProductService.getAllProducts(page, 12);
         res.status(200).json(products);
     } catch (error) {
         console.error('Error al obtener productos:', error);
@@ -27,12 +26,10 @@ const getAllProducts = async (req, res) => {
 }
 
 const getProductByTitle = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
     const { titulo } = req.params;
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 12;
-        
-        const products = await ProductService.getProductsByTitle(titulo, page, limit);
+        const products = await ProductService.getProductsByTitle(titulo, page, 12);
         res.status(200).json(products);
     } catch (error) {
         console.error('Error al obtener productos por título:', error);

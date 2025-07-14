@@ -7,7 +7,7 @@ const productSchema = new Schema(
       required: true,
     },
     precio: {
-      type: String,
+      type: Number,
       required: true,
     },
     imagenURL: {
@@ -50,6 +50,9 @@ const productSchema = new Schema(
     versionKey: false,
   }
 );
+
+// Crear índice de texto para búsqueda eficiente
+productSchema.index({ titulo: "text" });
 
 // Método para recalcular promedio de un mes específico
 productSchema.methods.recalcularPromedioMes = function(año, mes) {
