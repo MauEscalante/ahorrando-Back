@@ -34,7 +34,9 @@ async function scrapProductos(products) {
                 '.col-md-prod .product .image img.img-responsive',
                 img => img.src
             );
-             await productService.putProduct(titulo, precio, imagenURL, "Maximus", "https://www.maximus.com.ar/");
+            // Obtener la URL del producto
+            const url = await product.$eval("div.image a", a => a.href);
+            await productService.putProduct(titulo, precio, imagenURL, "Maximus", url);
         }
         
     }catch (error) {

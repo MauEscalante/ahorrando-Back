@@ -36,8 +36,9 @@ async function scrapProductos(products) {
                 img => img.src
             );
             }
+            const url=await product.$eval("div.thumbnail-container.reviews-loading a", a => a.href)
 
-             await productService.putProduct(titulo, precio, imagenURL, "Army Tech", "https://www.armytech.com.ar/");
+             await productService.putProduct(titulo, precio, imagenURL, "Army Tech", url);
         }
     }catch (error) {
         console.error("Error al scrapear productos:", error);

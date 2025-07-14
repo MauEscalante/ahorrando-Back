@@ -32,21 +32,7 @@ const putProduct = async (titulo, precio, imagen, local, localURL) => {
     }
 }
 
-const getAllProducts = async (page = 1, limit = 12) => {
-    try {
-        const skip = (page - 1) * limit;
-        
-        const products = await Product.aggregate([
-            { $sample: { size: await Product.countDocuments() } },
-            { $skip: skip },
-            { $limit: limit }
-        ]);
-        return products;
-    } catch (error) {
-        console.error('Error al obtener todos los productos:', error);
-        throw error;
-    }
-}
+
 
 const getProductsByTitle = async (titulo, page, limit) => {
     try {
@@ -153,7 +139,6 @@ const getProductById = async (id) => {
 
 export default {
     putProduct,
-    getAllProducts,
     getProductsByTitle,
     getPromediosById,
     getDetailsById,

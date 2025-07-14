@@ -3,61 +3,61 @@ import productService from "../services/products.service.js";
 import { normalizarPrecio } from "../utils/priceNormalizer.js";
 
 async function scrapProductos(products) {
-    try{
-            for (const product of products) {
-                const stock= await product.$(".label.label-no-stock")
-                if(stock){
-                    return false
-                }
+    try {
+        for (const product of products) {
+            const stock = await product.$(".label.label-no-stock")
+            if (stock) {
+                return false
+            }
 
-                // Extraer el título y el precio del producto
-                const titulo = await product.$eval(
+            // Extraer el título y el precio del producto
+            const titulo = await product.$eval(
                 'h3.product-box-title',
                 h => h.textContent.trim()
-                );
-                const precioRaw = await product.$eval(
+            );
+            const precioRaw = await product.$eval(
                 'span.current-price',
                 span => span.textContent.trim()
-                );
-                
-                // Normalizar el formato del precio
-                const precio = normalizarPrecio(precioRaw);
-                
-                // Solo procesar productos con precios válidos
-                if (!precio) {
-                    console.warn(`Producto omitido por precio inválido: ${titulo} - ${precioRaw}`);
-                    continue;
-                }
-                //scroll para q empiece a cargar la imagen
-                await product.scrollIntoViewIfNeeded();
+            );
 
-                
-                const existeImagen = await product.$('img.img-contained');
-                var imagenURL;
-                if (!existeImagen) {
-                    imagenURL = null; 
-                }else{
-                    imagenURL = await product.$eval(
+            // Normalizar el formato del precio
+            const precio = normalizarPrecio(precioRaw);
+
+            // Solo procesar productos con precios válidos
+            if (!precio) {
+                console.warn(`Producto omitido por precio inválido: ${titulo} - ${precioRaw}`);
+                continue;
+            }
+            //scroll para q empiece a cargar la imagen
+            await product.scrollIntoViewIfNeeded();
+
+
+            const existeImagen = await product.$('img.img-contained');
+            var imagenURL;
+            if (!existeImagen) {
+                imagenURL = null;
+            } else {
+                imagenURL = await product.$eval(
                     'img.img-contained',
                     img => img.src
                 );
-                }
-
-                await productService.putProduct(titulo, precio, imagenURL, "Venex", "https://www.venex.com.ar/");
             }
+            const url = await product.$eval("a.product-box-overlay", a => a.href);
+            await productService.putProduct(titulo, precio, imagenURL, "Venex", url);
+        }
         return true
-    }catch (error) {
+    } catch (error) {
         console.error("Error al scrapear productos:", error);
     }
-   
+
 }
 
 export async function scrapVenex() {
     const browser = await puppeteer.launch({
         headless: true,
-        slowMo:0,
+        slowMo: 0,
     });
-    const URLs=[
+    const URLs = [
         "https://www.venex.com.ar/componentes-de-pc",
         "https://www.venex.com.ar/pc-de-escritorio",
         "https://www.venex.com.ar/notebooks",
@@ -77,41 +77,41 @@ export async function scrapVenex() {
         "https://www.venex.com.ar/estabilizadores-ups-y-zapatillas"
     ]
 
-    const page = await browser.newPage();    
+    const page = await browser.newPage();
     // Obtener todos los elementos de header de paneles
     for (let i = 0; i < URLs.length; i++) {
         await page.goto(URLs[i]);
-        
-        let hayPaginacion=true
-        while(hayPaginacion){
+
+        let hayPaginacion = true
+        while (hayPaginacion) {
             await page.waitForSelector('div.row');
             const products = await page.$$('.product-box');
             if (products.length > 0) {
                 const resultados = await scrapProductos(products);
-                if(!resultados){
+                if (!resultados) {
                     console.log("BREAK")
                     break;
                 }
-                
+
             }
             const nextButton = await page.$('ul.pagination a.pageResults i.fa.fa-chevron-right');
-            if(nextButton){
+            if (nextButton) {
                 // Si hay un botón de siguiente, haz clic en él
                 await nextButton.click();
-            }else{
+            } else {
                 // Si no hay botón de siguiente, sal del bucle
-                hayPaginacion=false;
+                hayPaginacion = false;
             }
         }
-        
+
 
     }
 
 
 
-  
-  // Close the browser
-  console.log("Scraping de Venex exitoso");
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  await browser.close();
+
+    // Close the browser
+    console.log("Scraping de Venex exitoso");
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    await browser.close();
 }

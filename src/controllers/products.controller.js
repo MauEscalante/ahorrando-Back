@@ -13,17 +13,7 @@ const putProduct=async (req, res) => {
     }
 }
 
-const getAllProducts = async (req, res) => {
-    try {
-        const page = parseInt(req.query.page) || 1;
-        
-        const products = await ProductService.getAllProducts(page, 12);
-        res.status(200).json(products);
-    } catch (error) {
-        console.error('Error al obtener productos:', error);
-        res.status(500).json({ message: 'Error al obtener productos' });
-    }
-}
+
 
 const getProductByTitle = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -85,7 +75,6 @@ const getDetailsById = async (req, res) => {
 }
 
 export default {
-    getAllProducts,
     getProductByTitle,
     putProduct,
     getPromediosById,
