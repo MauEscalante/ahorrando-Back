@@ -1,13 +1,14 @@
 import User from '../model/User.js';
+import Producto from '../model/Product.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import mailSender from './nodemailer.js'; 
+import mailSender from './nodemailer.js';
 import { createTransport } from "nodemailer";
-import {google } from "googleapis";
+import { google } from "googleapis";
 
 
-const register = async (name,email,password) => {
-    try{
+const register = async (name, email, password) => {
+    try {
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             throw new Error('El usuario ya existe');
@@ -38,7 +39,7 @@ const register = async (name,email,password) => {
         if (error.name === 'ValidationError') {
             throw new Error('Datos de usuario inválidos: ' + error.message);
         }
-        
+
         throw new Error('Error al registrar usuario: ' + error.message);
     }
 }
@@ -49,7 +50,7 @@ const getUserById = async (id) => {
         if (!user) {
             throw new Error('Usuario no encontrado');
         }
-        return {nombre: user.Nombre, email: user.email, favoritos: user.favoritos, isConfirmed: user.isConfirmed};
+        return { nombre: user.Nombre, email: user.email, favoritos: user.favoritos, isConfirmed: user.isConfirmed };
     } catch (error) {
         throw new Error('Error al obtener usuario por ID');
     }
@@ -61,7 +62,7 @@ const getUserByEmail = async (email) => {
         if (!user) {
             throw new Error('Usuario no encontrado');
         }
-        return {nombre: user.Nombre, favoritos: user.favoritos};
+        return { nombre: user.Nombre, favoritos: user.favoritos };
     } catch (error) {
         throw new Error('Error al obtener usuario por email');
     }
@@ -73,7 +74,7 @@ const getFavoritos = async (userId) => {
         if (!user) {
             throw new Error('Usuario no encontrado');
         }
-        
+
         return user.favoritos;
     } catch (error) {
         throw new Error('Error al obtener favoritos');
@@ -86,10 +87,19 @@ const addFavorito = async (id, productId) => {
         if (!user) {
             throw new Error('Usuario no encontrado');
         }
+        // Verificar si el producto ya está en favoritos
         if (!user.favoritos.includes(productId)) {
+            // Añadir el producto a favoritos
             user.favoritos.push(productId);
             await user.save();
         }
+        await Producto.findByIdAndUpdate(productId, {
+            $addToSet: {
+                favoritedBy: {
+                    email: user.email,
+                }
+            }
+        });
     } catch (error) {
         throw new Error('Error al añadir favorito');
     }
@@ -101,8 +111,15 @@ const removeFavorito = async (id, productId) => {
         if (!user) {
             throw new Error('Usuario no encontrado');
         }
-        user.favoritos = user.favoritos.filter(fav => fav.toString() !== productId);
-        await user.save();
+        await User.findByIdAndUpdate(id, {
+            $pull: { favoritos: productId }
+        });
+        await Producto.findByIdAndUpdate(productId, {
+            $pull: {
+                favoritedBy: { email: user.email }
+            }
+        });
+
     } catch (error) {
         throw new Error('Error al eliminar favorito');
     }
@@ -110,17 +127,17 @@ const removeFavorito = async (id, productId) => {
 
 const confirmEmail = async (id) => {
     try {
-       const updatedUser = await User.findByIdAndUpdate(
+        const updatedUser = await User.findByIdAndUpdate(
             id,
             { isConfirmed: true },
             { new: true }
         );
 
-    if (!updatedUser) {
-      throw new Error("User not found");
-    }
+        if (!updatedUser) {
+            throw new Error("User not found");
+        }
 
-    return updatedUser;
+        return updatedUser;
     } catch (error) {
         throw new Error('Error al confirmar email');
     }
@@ -142,7 +159,7 @@ const login = async (email, password) => {
         const token = jwt.sign({ id: user._id }, process.env.SECRET_JWT, {
             expiresIn: '7d' // Token expira en 7 días
         });
-        
+
         return {
             token,
             user: {
@@ -171,7 +188,6 @@ const sendConfirmationEmail = async (user) => {
         });
 
         const accessTokenResponse = await oAuth2Client.getAccessToken();
-        
         const token = accessTokenResponse.token;
         const transporter = createTransport({
             service: "gmail",
@@ -196,9 +212,7 @@ const sendConfirmationEmail = async (user) => {
         });
 
     } catch (error) {
-        console.error("Error completo:", error);
-        console.error("Mensaje de error:", error.message);
-        console.error("Stack trace:", error.stack);
+        console.error("Mensaje de error:", error);
         throw new Error('Error al enviar email de confirmación: ' + error.message);
     }
 }

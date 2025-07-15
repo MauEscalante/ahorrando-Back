@@ -3,12 +3,12 @@ import jwt from 'jsonwebtoken';
 
 const register = async (req, res) => {
     try {
-        const { name,email,password } = req.body;
-        const result = await userService.register(name,email,password);
-         const confirmLink = `http://localhost:${process.env.PORT}/api/users/confirm-user/${result.token}`;
+        const { name, email, password } = req.body;
+        const result = await userService.register(name, email, password);
+        const confirmLink = `http://localhost:${process.env.PORT}/api/users/confirm-user/${result.token}`;
 
-    const subject = "Confirm your account - Ahorrando";
-    const html = `
+        const subject = "Confirm your account - Ahorrando";
+        const html = `
       <!DOCTYPE html>
       <html lang="en">
       <head>
@@ -90,7 +90,7 @@ const register = async (req, res) => {
       </html>
     `;
 
-    await userService.sendConfirmationEmail({ email: result.user.email, subject, html });
+        await userService.sendConfirmationEmail({ email: result.user.email, subject, html });
 
         res.status(201).json({
             message: 'Usuario registrado correctamente',
@@ -110,7 +110,7 @@ const getUserById = async (req, res) => {
         }
         res.status(200).json(user);
     } catch (error) {
-        res.status(500).json({ message: error.message});
+        res.status(500).json({ message: error.message });
     }
 }
 
@@ -130,7 +130,7 @@ const getUserByEmail = async (req, res) => {
 
 const getFavoritos = async (req, res) => {
     try {
-        const favoritos = await userService.getFavoritos( req.user.id);
+        const favoritos = await userService.getFavoritos(req.user.id);
         res.status(200).json({ favoritos });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -149,7 +149,7 @@ const addFavorito = async (req, res) => {
 
 const removeFavorito = async (req, res) => {
     try {
-         const { productId } = req.params;
+        const { productId } = req.params;
         const id = req.user.id;
         await userService.removeFavorito(id, productId);
         res.status(200).json({ message: 'Producto eliminado de favoritos' });
@@ -161,8 +161,8 @@ const removeFavorito = async (req, res) => {
 const confirmEmail = async (req, res) => {
     try {
         const { token } = req.params;
-        const decoded=jwt.verify(token, process.env.SECRET_JWT);
-        const userId=decoded.id
+        const decoded = jwt.verify(token, process.env.SECRET_JWT);
+        const userId = decoded.id
         const user = await userService.confirmEmail(userId);
         if (!user) {
             return res.status(404).json({ message: 'Token de confirmación inválido' });
@@ -177,19 +177,19 @@ const login = async (req, res) => {
     try {
         const { email, password } = req.body;
         const result = await userService.login(email, password);
-       
+
         if (!result) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
-        
+
         // Configurar cookie con opciones de seguridad
         res.cookie('token', result.token, {
             sameSite: 'lax', // Protección CSRF
-            httpOnly:false,
+            httpOnly: false,
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días en millisegundos
         });
-        
-        res.status(200).json({ 
+
+        res.status(200).json({
             message: 'Login exitoso',
             user: result.user
         });
@@ -206,7 +206,7 @@ const logout = async (req, res) => {
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax'
         });
-        
+
         res.status(200).json({ message: 'Sesión cerrada correctamente' });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -227,12 +227,12 @@ const profile = async (req, res) => {
 
 const logged = async (req, res) => {
     try {
-        const token=req.cookies.token;
+        const token = req.cookies.token;
         if (!token) {
             return res.json(false);
         }
-        const decoded= jwt.verify(token, process.env.SECRET_JWT);
-        return res.json({user:decoded})
+        const decoded = jwt.verify(token, process.env.SECRET_JWT);
+        return res.json({ user: decoded })
     } catch (error) {
         return res.status(401).json({ message: 'Token inválido' });
     }

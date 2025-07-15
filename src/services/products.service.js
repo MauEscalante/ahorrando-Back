@@ -137,10 +137,25 @@ const getProductById = async (id) => {
     }
 }
 
+const actualizarUltimaAlerta = async (productId, email, nuevaAlerta) => {
+  await Product.updateOne(
+    {
+      _id: productId,
+      "favoritedBy.email": email
+    },
+    {
+      $set: {
+        "favoritedBy.$.ultimaAlerta": nuevaAlerta
+      }
+    }
+  );
+};
+
 export default {
     putProduct,
     getProductsByTitle,
     getPromediosById,
     getDetailsById,
-    getProductById
+    getProductById,
+    actualizarUltimaAlerta
 };
