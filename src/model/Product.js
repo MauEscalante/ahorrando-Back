@@ -45,12 +45,15 @@ const productSchema = new Schema(
       default: new Map()
     },
     favoritedBy: [{
-      email:{
+      email: {
         type: String,
         required: true,
       },
-      ultimaAlerta:{
-        type:Number
+      precioUltimaAlerta: {
+        type: Number
+      },
+      ultimaAlerta: {
+        type: Date
       }
     }]
   },
@@ -120,30 +123,56 @@ productSchema.methods.recalcularPromedioMes = function (año, mes) {
   return null;
 };
 
-// Middleware que se ejecuta DESPUÉS de guardar (post save)
-productSchema.post('save', async function (doc, next) {
-  try {
-    const año = doc.fecha.getFullYear();
-    const mes = doc.fecha.getMonth() + 1;
+//obtener para verificar si enviar notificacion
+productSchema.methods.verificarBajaPrecio = function (precio) {
+  //tomo los ultimos 30 precios del historial
+  const ultimosPrecios = this.preciosHistorico.slice(-30);
+  let total = 0;
+  let sumaPesos = 0
 
-    // Recalcular promedio para ese mes
-    const promedio = doc.recalcularPromedioMes(año, mes);
+  // Verificar si el producto tiene alertas configuradas
+  if (this.favoritedBy && this.favoritedBy.length > 0) {
+    for (let i = 0; i < ultimosPrecios.length; i++) {
+      let peso;
+      if (i <= 20) {
+        peso = 1; // Peso normal para los primeros 20 precios
+      } else {
+        peso = 3; // Peso triple para los últimos 10 precios
+      }
+      total += this.ultimosPrecios[i].precio * peso;
+      sumaPesos += peso;
 
-    // Solo actualizar si se calculó un promedio
-    if (promedio !== null && promedio !== undefined) {
-      // Usar findByIdAndUpdate que no ejecuta middleware de save
-      await doc.constructor.findByIdAndUpdate(
-        doc._id,
-        { $set: { promediosPorAño: doc.promediosPorAño } },
-        { new: false } // No necesitamos el documento actualizado
-      );
     }
-
-    next();
-  } catch (error) {
-    console.error('❌ Error en post save:', error);
-    next(error);
+    return total / sumaPesos;
   }
-});
+  return null;
+}
 
-export default model("Product", productSchema);
+
+  // Middleware que se ejecuta DESPUÉS de guardar (post save)
+  productSchema.post('save', async function (doc, next) {
+    try {
+      const año = doc.fecha.getFullYear();
+      const mes = doc.fecha.getMonth() + 1;
+
+      // Recalcular promedio para ese mes
+      const promedio = doc.recalcularPromedioMes(año, mes);
+
+      // Solo actualizar si se calculó un promedio
+      if (promedio !== null && promedio !== undefined) {
+        // Usar findByIdAndUpdate que no ejecuta middleware de save
+        await doc.constructor.findByIdAndUpdate(
+          doc._id,
+          { $set: { promediosPorAño: doc.promediosPorAño } },
+          { new: false } // No necesitamos el documento actualizado
+        );
+      }
+
+      next();
+    } catch (error) {
+      console.error('❌ Error en post save:', error);
+      next(error);
+    }
+  });
+
+  export default model("Product", productSchema);
