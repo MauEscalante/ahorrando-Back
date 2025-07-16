@@ -1,11 +1,10 @@
-import { get } from "mongoose";
 import Product from "../model/Product.js";
 
 const putProduct = async (titulo, precio, imagen, local, localURL) => {
     try {
         // Verifica si el producto ya existe por título
         let producto = await Product.findOne({ titulo });
-        if(producto) {
+        if (producto) {
             // Si existe, actualiza el precio y agrega al historial
             producto.preciosHistorico.push({ precio, fecha: new Date() });
             producto.precio = precio;
@@ -24,6 +23,94 @@ const putProduct = async (titulo, precio, imagen, local, localURL) => {
                 preciosHistorico: [{ precio, fecha: new Date() }]
             });
             await producto.save();
+        }
+        const promedio = producto.verificarBajaPrecio();
+        // Si el precio actual es un 5% menor que el promedio
+        if (producto.precio < promedio * 0.95) {
+            const subject = `Alerta de precio bajo - ${producto.titulo}`;
+            const html = `
+                  <!DOCTYPE html>
+                  <html lang="en">
+                  <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Confirm Your Account</title>
+                    <style>
+                      body {
+                        font-family: Arial, sans-serif;
+                        background-color: #f4f4f4;
+                        margin: 0;
+                        padding: 0;
+                      }
+                      .container {
+                        max-width: 600px;
+                        margin: 20px auto;
+                        background: #ffffff;
+                        border-radius: 8px;
+                        overflow: hidden;
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                      }
+                      .header {
+                        background-color:rgb(50, 123, 255);
+                        color: #ffffff;
+                        text-align: center;
+                        padding: 20px;
+                      }
+                      .header h1 {
+                        margin: 0;
+                        font-size: 24px;
+                      }
+                      .content {
+                        padding: 20px;
+                        line-height: 1.6;
+                        color: #333333;
+                      }
+                      .content p {
+                        margin: 10px 0;
+                      }
+                      .btn {
+                        display: inline-block;
+                        background-color:rgb(50, 123, 255);
+                        color: #ffffff;
+                        text-decoration: none;
+                        padding: 10px 20px;
+                        border-radius: 5px;
+                        margin-top: 20px;
+                        font-size: 16px;
+                      }
+                      .btn:hover {
+                        background-color:rgb(0, 153, 255);
+                      }
+                      .footer {
+                        text-align: center;
+                        padding: 10px;
+                        font-size: 12px;
+                        color: #777777;
+                        background-color: #f4f4f4;
+                      }
+                    </style>
+                  </head>
+                  <body>
+                    <div class="container">
+                      <div class="header">
+                        <h1>El producto esta mas bajo que nunca</h1>
+                      </div>
+                      <div class="content">
+                        <p>El producto <strong>${producto.titulo}</strong> ha bajado de precio. Aprovecha y compra ahora!</p>
+                        <a href="${producto.localURL}" class="btn">Ver producto</a>
+                      </div>
+                      <div class="footer">
+                        <p>Este correo fue enviado desde Ahorrando.</p>
+                      </div>
+                    </div>
+                  </body>
+                  </html>
+                `;
+            for (const favoritoBy of producto.favoritedBy) {
+                await userService.sendConfirmationEmail({ email: favoritoBy.email, subject, html });
+                //actualizar ultima alerta
+                await actualizarUltimaAlerta(producto._id, favoritoBy.email, precio)
+            }
         }
         return producto;
     } catch (error) {
@@ -48,10 +135,10 @@ const getProductsByTitle = async (titulo, page, limit) => {
         const products = await Product.find({
             $and: patronesBusqueda
         })
-        .sort({ precio: 1 })
-        .skip(skip)
-        .limit(limit);
-        
+            .sort({ precio: 1 })
+            .skip(skip)
+            .limit(limit);
+
         return products;
     } catch (error) {
         console.error('Error al obtener productos por título:', error);
@@ -63,8 +150,8 @@ const getPromediosById = async (id) => {
     try {
         const product = await Product.findById(id);
         const meses = [
-        "enero", "febrero", "marzo", "abril", "mayo", "junio",
-        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+            "enero", "febrero", "marzo", "abril", "mayo", "junio",
+            "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
         ];
 
         const resultado = [];
@@ -72,9 +159,9 @@ const getPromediosById = async (id) => {
         for (const [año, precios] of product.promediosPorAño.entries()) {
             precios.forEach((precio, i) => {
                 resultado.push({
-                año,
-                mes: meses[i],
-                precio: precio
+                    año,
+                    mes: meses[i],
+                    precio: precio
                 });
             });
         }
@@ -87,14 +174,14 @@ const getPromediosById = async (id) => {
 }
 
 const getDetailsById = async (id, año, mes) => {
-    try{
+    try {
         const product = await Product.findById(id);
         if (!product) {
             throw new Error('Producto no encontrado');
         }
         const meses = [
-        "enero", "febrero", "marzo", "abril", "mayo", "junio",
-        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+            "enero", "febrero", "marzo", "abril", "mayo", "junio",
+            "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
         ];
         let intMes;
         for (let i = 0; i < meses.length; i++) {
@@ -109,10 +196,10 @@ const getDetailsById = async (id, año, mes) => {
             const preciosFiltrados = product.preciosHistorico.filter(item => {
                 const itemAño = item.fecha.getFullYear();
                 const itemMes = item.fecha.getMonth() + 1; // getMonth() devuelve 0-11, necesitamos 1-12
-                
+
                 return itemAño === parseInt(año) && itemMes === parseInt(intMes);
             });
-            
+
             return preciosFiltrados;
         }
 
@@ -129,7 +216,7 @@ const getProductById = async (id) => {
         const product = await Product.findById(id);
         if (!product) {
             throw new Error('Producto no encontrado');
-        } 
+        }
         return product;
     } catch (error) {
         console.error('Error al obtener producto por ID:', error);
@@ -137,18 +224,19 @@ const getProductById = async (id) => {
     }
 }
 
-const actualizarUltimaAlerta = async (productId, email, nuevaAlerta) => {
-  await Product.updateOne(
-    {
-      _id: productId,
-      "favoritedBy.email": email
-    },
-    {
-      $set: {
-        "favoritedBy.$.ultimaAlerta": nuevaAlerta
-      }
-    }
-  );
+const actualizarUltimaAlerta = async (productId, email, nuevoPrecio) => {
+    await Product.updateOne(
+        {
+            _id: productId,
+            "favoritedBy.email": email
+        },
+        {
+            $set: {
+                "favoritedBy.$.ultimaAlerta": new Date(),
+                "favoritedBy.$.precioUltimaAlerta": nuevoPrecio
+            }
+        }
+    );
 };
 
 export default {
