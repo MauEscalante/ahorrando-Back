@@ -149,22 +149,34 @@ const getProductsByTitle = async (titulo, page, limit) => {
 const getPromediosById = async (id) => {
     try {
         const product = await Product.findById(id);
+        if (!product) {
+            throw new Error('Producto no encontrado');
+        }
+        
         const meses = [
             "enero", "febrero", "marzo", "abril", "mayo", "junio",
             "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
         ];
 
-        const resultado = [];
-
-        for (const [año, precios] of product.promediosPorAño.entries()) {
-            precios.forEach((precio, i) => {
-                resultado.push({
-                    año,
-                    mes: meses[i],
-                    precio: precio
-                });
-            });
+        // Verificar si existe el map promediosPorAño
+        if (!product.promediosPorAño || product.promediosPorAño.size === 0) {
+            return [];
         }
+
+        // Obtener el último año (clave más alta)
+        const años = Array.from(product.promediosPorAño.keys()).map(key => parseInt(key));
+        const ultimoAño = Math.max(...años);
+
+        // Obtener el array de promedios del último año
+        const promediosUltimoAño = product.promediosPorAño.get(ultimoAño.toString());
+
+        // Crear el array resultado con cada mes y su promedio
+        const resultado = promediosUltimoAño.map((promedio, index) => ({
+            año: ultimoAño,
+            mes: meses[index],
+            precio: promedio
+        })).filter(item => item.precio !== null && item.precio !== undefined);
+
         return resultado;
 
     } catch (error) {
