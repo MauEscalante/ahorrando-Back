@@ -125,8 +125,8 @@ productSchema.methods.recalcularPromedioMes = function (año, mes) {
 
 //obtener para verificar si enviar notificacion
 productSchema.methods.verificarBajaPrecio = function (precio) {
-  //tomo los ultimos 30 precios del historial
-  const ultimosPrecios = this.preciosHistorico.slice(-30);
+  //tomo los ultimos 90 precios del historial
+  const ultimosPrecios = this.preciosHistorico.slice(-90);
   let total = 0;
   let sumaPesos = 0
 
@@ -134,12 +134,12 @@ productSchema.methods.verificarBajaPrecio = function (precio) {
   if (this.favoritedBy && this.favoritedBy.length > 0) {
     for (let i = 0; i < ultimosPrecios.length; i++) {
       let peso;
-      if (i <= 20) {
-        peso = 1; // Peso normal para los primeros 20 precios
+      if (i <= 60) {
+        peso = 1; // Peso normal para los primeros 60 precios
       } else {
-        peso = 3; // Peso triple para los últimos 10 precios
+        peso = 3; // Peso triple para los últimos 30 precios
       }
-      total += this.ultimosPrecios[i].precio * peso;
+      total += ultimosPrecios[i].precio * peso;
       sumaPesos += peso;
 
     }
