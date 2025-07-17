@@ -1,0 +1,348 @@
+{
+	"info": {
+		"_postman_id": "e5c30961-9836-4065-b570-b90bb68c015c",
+		"name": "Scrapper",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33571981"
+	},
+	"item": [
+		{
+			"name": "products/",
+			"item": [
+				{
+					"name": "getDetailsById",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"año\":\"2025\",\r\n    \"mes\":\"julio\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://ahorrando-api.onrender.com/api/products/detalles/687839b76ed2d6d76b27809c",
+							"protocol": "https",
+							"host": [
+								"ahorrando-api",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"products",
+								"detalles",
+								"687839b76ed2d6d76b27809c"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getProductById",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"año\":\"2025\",\r\n    \"mes\":\"julio\"\r\n}"
+						},
+						"url": {
+							"raw": "https://ahorrando-api.onrender.com/api/products/id/687839b76ed2d6d76b27809c",
+							"protocol": "https",
+							"host": [
+								"ahorrando-api",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"products",
+								"id",
+								"687839b76ed2d6d76b27809c"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getProductByTitle",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://ahorrando-api.onrender.com/api/products/title/notebook",
+							"protocol": "https",
+							"host": [
+								"ahorrando-api",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"products",
+								"title",
+								"notebook"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getPromediosById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://ahorrando-api.onrender.com/api/products/search/687839b76ed2d6d76b27809c",
+							"protocol": "https",
+							"host": [
+								"ahorrando-api",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"products",
+								"search",
+								"687839b76ed2d6d76b27809c"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "users/",
+			"item": [
+				{
+					"name": "register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"Mauricio Escalante\",\r\n   \"email\":\"escalantemauricio2002@gmail.com\",\r\n   \"password\":\"Ahorrando123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://ahorrando-api.onrender.com/api/users/register",
+							"protocol": "https",
+							"host": [
+								"ahorrando-api",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "obtenerFavoritos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://ahorrando-api.onrender.com/api/users/list/favorito",
+							"protocol": "https",
+							"host": [
+								"ahorrando-api",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"users",
+								"list",
+								"favorito"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "agregarFavorito",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "https://ahorrando-api.onrender.com/api/users/favoritos/687839b76ed2d6d76b27809c",
+							"protocol": "https",
+							"host": [
+								"ahorrando-api",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"users",
+								"favoritos",
+								"687839b76ed2d6d76b27809c"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "eliminarFavorito",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://ahorrando-api.onrender.com/api/users/favoritos/687839b76ed2d6d76b27809c",
+							"protocol": "https",
+							"host": [
+								"ahorrando-api",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"users",
+								"favoritos",
+								"687839b76ed2d6d76b27809c"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n      \"email\":\"escalantemauricio2002@gmail.com\",\r\n   \"password\":\"Ahorrando123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://ahorrando-api.onrender.com/api/users/login",
+							"protocol": "https",
+							"host": [
+								"ahorrando-api",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logOut",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n      \"email\":\"prueba@gmail.com\",\r\n   \"password\":\"prueba1\"\r\n}"
+						},
+						"url": {
+							"raw": "https://ahorrando-api.onrender.com/api/users/logout",
+							"protocol": "https",
+							"host": [
+								"ahorrando-api",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"users",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "profile",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"email\":\"escalantemauricio2002@gmail.com\",\r\n   \"password\":\"Escalante1218\" \r\n}"
+						},
+						"url": {
+							"raw": "https://ahorrando-api.onrender.com/api/users/me/profile",
+							"protocol": "https",
+							"host": [
+								"ahorrando-api",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"users",
+								"me",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logged",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"email\":\"escalantemauricio2002@gmail.com\",\r\n   \"password\":\"Escalante1218\" \r\n}"
+						},
+						"url": {
+							"raw": "https://ahorrando-api.onrender.com/api/users/me/logged",
+							"protocol": "https",
+							"host": [
+								"ahorrando-api",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"users",
+								"me",
+								"logged"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

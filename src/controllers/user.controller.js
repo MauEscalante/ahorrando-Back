@@ -5,7 +5,7 @@ const register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
         const result = await userService.register(name, email, password);
-        const confirmLink = `http://localhost:${process.env.PORT}/api/users/confirm-user/${result.token}`;
+        const confirmLink = `https://ahorrando-api.onrender.com/api/users/confirm-user/${result.token}`;
 
         const subject = "Confirm your account - Ahorrando";
         const html = `
