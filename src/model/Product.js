@@ -141,7 +141,7 @@ productSchema.post('save', async function (doc, next) {
     const mes = doc.fecha.getMonth() + 1; // +1 porque getMonth() retorna 0-11
 
     // Recalcular promedio para ese mes
-    const promedio = doc.recalcularPromedioMes(año, mes);y
+    const promedio = doc.recalcularPromedioMes(año, mes);
 
     // Solo actualizar si se calculó un promedio
     if (promedio !== null && promedio !== undefined) {
