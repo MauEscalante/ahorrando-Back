@@ -8,7 +8,7 @@ import cookieParser from 'cookie-parser';
 const app = express();
 
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000',"https://ahorrando-gaming.vercel.app/"], 
+    origin: ['http://localhost:3000', 'http://127.0.0.1:3000',"https://ahorrando-gaming.vercel.app"], 
     credentials: true, // Permite cookies
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
