@@ -8,7 +8,7 @@ import cookieParser from 'cookie-parser';
 const app = express();
 
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000',"https://ahorrando-api.onrender.com"], // Agrega aquí la URL de tu frontend
+    origin: ['http://localhost:3000', 'http://127.0.0.1:3000',"https://ahorrando-gaming.vercel.app/"], // Agrega aquí la URL de tu frontend
     credentials: true, // Permite cookies
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
