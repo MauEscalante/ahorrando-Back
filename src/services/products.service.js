@@ -1,9 +1,9 @@
 import Product from "../model/Product.js";
-import { scrapCompraGamer } from './src/webs/compraGamer.js';
-import { scrapMaximus } from './src/webs/maximus.js';
-import { scrapArmyTech } from './src/webs/armyTech.js';
-import { scrapVenex } from './src/webs/venex.js';
-import { scrapFullH4rd } from './src/webs/fullh4rd.js';
+import { scrapCompraGamer } from '../webs/compraGamer.js';
+import { scrapMaximus } from '../webs/maximus.js';
+import { scrapArmyTech } from '../webs/armyTech.js';
+import { scrapVenex } from '../webs/venex.js';
+import { scrapFullH4rd } from '../webs/fullh4rd.js';
 
 const putProduct = async (titulo, precio, imagen, local, localURL) => {
     try {
