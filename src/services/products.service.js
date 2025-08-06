@@ -1,4 +1,9 @@
 import Product from "../model/Product.js";
+import { scrapCompraGamer } from './src/webs/compraGamer.js';
+import { scrapMaximus } from './src/webs/maximus.js';
+import { scrapArmyTech } from './src/webs/armyTech.js';
+import { scrapVenex } from './src/webs/venex.js';
+import { scrapFullH4rd } from './src/webs/fullh4rd.js';
 
 const putProduct = async (titulo, precio, imagen, local, localURL) => {
     try {
@@ -152,7 +157,7 @@ const getPromediosById = async (id) => {
         if (!product) {
             throw new Error('Producto no encontrado');
         }
-        
+
         const meses = [
             "enero", "febrero", "marzo", "abril", "mayo", "junio",
             "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
@@ -251,7 +256,23 @@ const actualizarUltimaAlerta = async (productId, email, nuevoPrecio) => {
     );
 };
 
+const scrapeProducts = async (req, res) => {
+    try {
+        await scrapCompraGamer();
+        await scrapVenex();
+        await scrapArmyTech();
+        await scrapMaximus();
+        await scrapFullH4rd();
+
+        res.status(200).json({ message: 'Scraping completado exitosamente' });
+    } catch (error) {
+        console.error('Error al hacer scraping de productos:', error);
+        res.status(500).json({ message: 'Error al hacer scraping de productos' });
+    }
+}
+
 export default {
+    scrapeProducts,
     putProduct,
     getProductsByTitle,
     getPromediosById,

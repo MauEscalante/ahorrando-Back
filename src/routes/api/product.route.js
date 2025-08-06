@@ -8,5 +8,7 @@ router.get('/id/:id', ProductsController.getProductById);
 router.get('/title/:titulo', ProductsController.getProductByTitle);
 router.get('/search/:id', ProductsController.getPromediosById);
 
+router.get('/scrape', ProductsController.scrapeProducts);
+
 
 export default router;

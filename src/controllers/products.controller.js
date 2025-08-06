@@ -74,7 +74,18 @@ const getDetailsById = async (req, res) => {
     }
 }
 
+const scrapeProducts = async (req, res) => {
+    try {
+        await ProductService.scrapeProducts();
+        res.status(200).json({ message: 'Scraping de productos completado' });
+    } catch (error) {
+        console.error('Error al realizar scraping de productos:', error);
+        res.status(500).json({ message: 'Error al realizar scraping de productos' });
+    }
+}
+
 export default {
+    scrapeProducts,
     getProductByTitle,
     putProduct,
     getPromediosById,
