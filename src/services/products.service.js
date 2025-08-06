@@ -264,10 +264,9 @@ const scrapeProducts = async (req, res) => {
         await scrapMaximus();
         await scrapFullH4rd();
 
-        res.status(200).json({ message: 'Scraping completado exitosamente' });
+        return {success: true, message: 'Scraping completado exitosamente'};
     } catch (error) {
-        console.error('Error al hacer scraping de productos:', error);
-        res.status(500).json({ message: 'Error al hacer scraping de productos' });
+        throw error;
     }
 }
 
